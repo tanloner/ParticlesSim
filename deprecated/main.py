@@ -1,12 +1,13 @@
-import pygame
+import random
 import sys
-from slime_agent import SlimeAgent
-from constants import screen_width, screen_height, evaporation_rate, diffusion_rate, pheromone_grid
+
 import numpy as np
+import pygame
 import scipy.ndimage
 from scipy.ndimage import uniform_filter, gaussian_filter
-import random
-import matplotlib.pyplot as plt
+
+from constants import screen_width, screen_height, evaporation_rate, diffusion_rate, pheromones_surface, pheromone_grid
+from slime_agent import SlimeAgent
 
 # Initialize Pygame
 pygame.init()
@@ -18,32 +19,37 @@ pygame.display.set_caption('Slime Simulation')
 
 agents = [SlimeAgent(random.randint(0, screen_width), random.randint(0, screen_height)) for _ in range(2000)]
 
+
 def deposit_pheromone(agent):
     x, y = int(agent.position[0]), int(agent.position[1])
     pheromone_grid[x, y] += 1
 
+
 def diffuse_and_evaporate_using_convolve():
     global pheromone_grid
-    
-    kernel = np.array([[0, diffusion_rate, 0],
-                       [diffusion_rate, 1 - 4 * diffusion_rate, diffusion_rate],
-                       [0, diffusion_rate, 0]])
+
+    kernel = np.array(
+        [[0, diffusion_rate, 0], [diffusion_rate, 1 - 4 * diffusion_rate, diffusion_rate], [0, diffusion_rate, 0]])
     pheromone_grid = scipy.ndimage.convolve(pheromone_grid, kernel, mode='constant')
     pheromone_grid *= evaporation_rate
+
 
 def diffuse_and_evaporate():
     global pheromone_grid
     blurred = uniform_filter(pheromone_grid, size=3, mode='constant')
     pheromone_grid = blurred * evaporation_rate
 
+
 def diffuse_and_evaporate_using_gaussian():
     global pheromone_grid
     blurred = gaussian_filter(pheromone_grid, sigma=0.2)
     pheromone_grid = blurred * evaporation_rate
 
+
 def evaporate():
     global pheromone_grid
     pheromone_grid *= evaporation_rate
+
 
 def sense_pheromones(agent):
     # Positions for forward, left, and right sensors
@@ -74,10 +80,6 @@ def sense_pheromones(agent):
 
 
 
-# Initialize the pheromones surface
-pheromones_surface = pygame.Surface((screen_width, screen_height))
-pheromones_surface.set_colorkey((0, 0, 0))  # Make black transparent
-
 def update_pheromone_visuals_with_loops():
     # Only update the pheromones surface where needed
     global pheromone_grid
@@ -87,6 +89,7 @@ def update_pheromone_visuals_with_loops():
             if pheromone_intensity > 0:
                 intensity = min(int(pheromone_intensity * 255), 255)
                 pheromones_surface.set_at((x, y), (intensity, 100, 100))
+
 
 def update_pheromone_visuals():
     global pheromone_grid
@@ -111,8 +114,8 @@ def update_pheromone_visuals():
     # Delete the pixel array reference
     del pixel_array
 
-    # Update the surface
-    #pygame.display.update(pheromones_surface.get_rect())
+    # Update the surface  # pygame.display.update(pheromones_surface.get_rect())
+
 
 # Main loop
 running = True
@@ -125,25 +128,24 @@ while running:
 
     # Draw pheromones
     update_pheromone_visuals()
-    #configure numpy so it prints the full array
-    #np.set_printoptions(threshold=sys.maxsize)
-    #print(pheromone_grid)
+    # configure numpy so it prints the full array
+    # np.set_printoptions(threshold=sys.maxsize)
+    # print(pheromone_grid)
     screen.blit(pheromones_surface, (0, 0))
 
     # Update and draw each agent
     for agent in agents:
-        #agent.sense_pheromones()
+        # agent.sense_pheromones()
         sense_pheromones(agent)
         agent.move()
-        #agent.deposit_pheromone()
-        deposit_pheromone(agent)
-        #pygame.draw.circle(screen, (0, 255, 0), agent.position.astype(int), 2)
-    #diffuse_and_evaporate()
+        # agent.deposit_pheromone()
+        deposit_pheromone(agent)  # pygame.draw.circle(screen, (0, 255, 0), agent.position.astype(int), 2)
+    # diffuse_and_evaporate()
     diffuse_and_evaporate_using_gaussian()
-    #plt.imshow(pheromone_grid, cmap='hot', interpolation='nearest')
-    #plt.colorbar()
-    #plt.show()  # This is optional; use it if you want to see the heatmap before saving
-    #evaporate()
+    # plt.imshow(pheromone_grid, cmap='hot', interpolation='nearest')
+    # plt.colorbar()
+    # plt.show()  # This is optional; use it if you want to see the heatmap before saving
+    # evaporate()
 
     pygame.display.flip()
 

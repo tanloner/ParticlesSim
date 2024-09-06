@@ -1,5 +1,8 @@
 import numpy as np
+
 from constants import *
+
+
 class SlimeAgent:
     def __init__(self, x, y):
         self.position = np.array([x, y], dtype=float)
@@ -7,11 +10,11 @@ class SlimeAgent:
         self.speed = 1.0  # Speed of movement
 
     def move(self):
-        #position = self.position + np.array([np.cos(self.direction), np.sin(self.direction)]) * self.speed
-        #if position[0] < 0 or position[0] >= screen_width or position[1] < 0 or position[1] >= screen_height:
+        # position = self.position + np.array([np.cos(self.direction), np.sin(self.direction)]) * self.speed
+        # if position[0] < 0 or position[0] >= screen_width or position[1] < 0 or position[1] >= screen_height:
         #    self.direction = np.random.rand() * 2 * np.pi
         #    self.move()
-        #else:
+        # else:
         #    self.position = position
         # Update position based on the current direction
         self.position += np.array([np.cos(self.direction), np.sin(self.direction)]) * self.speed
@@ -22,4 +25,3 @@ class SlimeAgent:
 
     def update_direction(self, new_direction):
         self.direction = new_direction
-
